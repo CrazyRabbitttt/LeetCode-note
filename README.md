@@ -104,3 +104,211 @@ int main() {
 }
 
 ```
+
+### 简单引用计数共享指针
+
+```cpp
+#include <iostream>
+using namespace std;
+
+// 引用计数实现共享指针
+
+// template <class T>
+// class Ref_count {
+//  private:
+//     T* ptr_;             // 原始的指针
+//     int* count;         // 引用计数器指针
+//  public:
+
+//     Ref_count(T* t)
+//         :ptr_(t), count(new int(1)) {}
+//     ~Ref_count() {
+//         decrease();
+//     }
+
+//     // 拷贝构造
+//     Ref_count(const Ref_count<T>& tmp) {
+//         count = tmp->count();
+//         ptr_  = tmp->ptr_;
+//         increase();     // 引用计数➕1
+//     }
+
+//     // 智能指针需要表现的像一个指针，重载重要的符号
+//     T* operator->() const {
+//         return ptr;
+//     }
+
+//     T& operator *() const {
+//         // *(ptr) = value;
+//         return *ptr_;
+//     }
+
+
+//     void increase() {
+//         if (count) {
+//             *(count)++;
+//         }
+//     }
+
+//     void decrease() {
+//         if (count) {
+//             *(count)--;
+//             if (*count == 0) {
+//                 // 如果说引用计数为0的话就删除数据对象的指针和count的指针
+//                 delete ptr_;
+//                 ptr_ = nullptr;
+//                 delete count;
+//                 count = nullptr;
+//             }
+//         }
+//     }
+
+//     T* get() const {
+//         return ptr_;
+//     }
+
+//     int get_count() const {
+//         if (!count) return 0;
+//         return *count;
+//     }
+
+
+// };
+
+template<class T> 
+class Ref_count {
+ public:
+    Ref_count(T* ptr)
+        :ptr_(ptr), count_(new int(1)) {}
+    ~Ref_count() {
+        decrease();
+    }
+
+    T* operator->() const {
+        return ptr_;
+    }
+
+    T& operator*() const {
+        return *ptr_;
+    }
+
+    void increase() {
+        if (count_) {
+            *(count_)++;
+        }
+    }
+
+
+    void decrease() {
+        if (count_) {
+            *(count)--
+            if (*count_ == 0) {
+                delete ptr_;
+                ptr_ = nullptr;
+                delete count_;
+                count_ = nullptr;
+            }
+        }
+    }
+
+    T* get() const {
+        return ptr_;
+    }
+
+    int get_count() const {
+        if (!count_) return 0;
+        return *count_;
+    }
+
+
+ private:
+    T* ptr_;
+    int* count_;
+};
+
+```
+
+
+
+### 二叉树先序遍历 1.迭代
+> - 用栈进行存放，先放右边的才能保障左边的先出来
+
+```cpp
+
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<TreeNode*> st;
+        st.push(root);
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+            st.pop();
+            result.push_back(node->val);            // 中
+            if (node->right) st.push(node->right);
+            if (node->left)  st.push(node->left);
+        }
+        return result;
+    }
+};
+
+```
+
+### 二叉树先序遍历（郭郭思路）
+> - 模拟一个节点走的路径的思路，核心代码都是相同的
+```cpp
+
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> res;
+        stack<TreeNode*>st;
+        Treenode* node = root;
+        while (node || stack.size()) {
+            // 尽可能向左，根左右
+            while (node) {
+                res.push_back(node->val);
+                st.push(node);
+                node = node->left;
+            }
+            // 遍历到最左边了，弹栈，向右
+            TreeNode* cur = st.top(); st.pop();
+            node = cur->right;
+        }
+        return res;   
+    }
+};
+
+```
+
+
+### 二叉树后序遍历 （郭郭思路）
+> - 根右左的reverse版本，但是不能边遍历边处理，但是能够简化思路， 同上面类似
+
+
+### 二叉树中序遍历 （郭郭思路）
+
+> - 中序遍历也是先向左，但是根结点是弹栈的时候才加入到res的
+```cpp
+
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> res;
+        stack<TreeNode*>st;
+        Treenode* node = root;
+        while (node || st.size()) {
+            // 不断的向左走
+            while (node) {
+                st.push(node);
+                node = node->left;
+            }
+            node = st.top(); st.pop();
+            res.push_back(node->val);
+            root = root->right;
+        }
+    }
+};
+
+
+```
