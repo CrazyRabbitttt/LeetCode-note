@@ -255,7 +255,7 @@ public:
 ```
 
 ### 二叉树先序遍历（郭郭思路）
-> - 模拟一个节点走的路径的思路，核心代码都是相同的
+>  模拟一个节点走的路径的思路，核心代码都是相同的
 ```cpp
 
 class Solution {
@@ -288,7 +288,7 @@ public:
 
 ### 二叉树中序遍历 （郭郭思路）
 
-> - 中序遍历也是先向左，但是根结点是弹栈的时候才加入到res的
+>  中序遍历也是先向左，但是根结点是弹栈的时候才加入到res的
 ```cpp
 
 class Solution {
@@ -310,5 +310,110 @@ public:
     }
 };
 
+```
+
+### Memcpy的实现，
+> 不同于strcpy, 这是内存级别的拷贝，后者只是字符串的拷贝
+> 需要考虑的点就是是否是有内存的重叠的情况，只需要判断下面这种情况就行
+
+> `111111111`   src
+>      `000000000`  dst
+> 因为内存是重叠的，所以dst直接将src后面的覆盖掉了，没了。。。解决办法就是从后往前复制
+
+
+```cpp
+
+void* my_memcpy(void* dst, const void* src, size_t count) {
+    if (dst == nullptr || src == nullptr)   return nullptr;
+    char* tmp_dst = (char*)dst;
+    char* tmp_src = (char*)src;
+    if (tmp_dst > tmp_src && tmp_dst < tmp_src + count) {
+        // 有内存的重叠
+        tmp_dst = tmp_dst + count - 1;
+        tmp_src = tmp_src + count - 1;
+        while (count --) {
+            *tmp_dst-- = *tmp_src--;
+        }
+    } else {
+        while (count--) {
+            *tmp_dst++ = *tmp_src++;
+        }
+    }
+    return (void*)dst;
+}
 
 ```
+
+
+### 死锁的检测
+> - 使用pstack <pid> 能够查看栈帧的调用情况
+> - GDB 使用`info threads` 查看线程，`thread 2`切换线程，`bt`打印线程的调用栈信息，`print`具体查看变量的值
+
+** 测试代码 **
+
+```cpp
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+pthread_mutex_t mutex_A = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_B = PTHREAD_MUTEX_INITIALIZER;
+
+
+void *threadB_proc(void *data)
+{
+    printf("thread B waiting get ResourceB \n");
+    pthread_mutex_lock(&mutex_B);
+    printf("thread B got ResourceB \n");
+    
+    sleep(1);
+    
+    printf("thread B waiting  get ResourceA \n");
+    pthread_mutex_lock(&mutex_A);
+    printf("thread B got ResourceA \n");
+    
+    pthread_mutex_unlock(&mutex_A);
+    pthread_mutex_unlock(&mutex_B);
+    return (void *)0;
+}
+
+
+//线程函数 A
+void *threadA_proc(void *data)
+{
+    printf("thread A waiting get ResourceA \n");
+    pthread_mutex_lock(&mutex_A);
+    printf("thread A got ResourceA \n");
+    
+    sleep(1);
+    
+    printf("thread A waiting get ResourceB \n");
+    pthread_mutex_lock(&mutex_B);
+    printf("thread A got ResourceB \n");
+
+    pthread_mutex_unlock(&mutex_B);
+    pthread_mutex_unlock(&mutex_A);
+    return (void *)0;
+}
+
+
+int main() {
+    pthread_t tidA, tidB;
+
+    pthread_create(&tidA, NULL, threadA_proc, NULL);
+    pthread_create(&tidB, NULL, threadB_proc, NULL);
+    
+    pthread_join(tidA, NULL);
+    pthread_join(tidB, NULL);
+    
+    printf("exit\n");
+    
+    return 0;
+}
+
+
+```
+
+
+### 5种IO模型，很好的文章
+> [链接在这里](https://zhuanlan.zhihu.com/p/115912936)
