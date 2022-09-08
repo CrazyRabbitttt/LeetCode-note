@@ -23,7 +23,25 @@ https://blog.csdn.net/qq_40276626/article/details/119979930
 - 在MyString类中是深拷贝，但是如果传递的是"hahahah"：一个右值，那么深拷贝太浪费了，所以可以重载一个传递右值引用的参数 (MyString && m)
 
 
+### 虚函数问题
+[link](https://github.com/guaguaupup/cpp_interview/blob/main/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93%E2%80%94C++.md#c%E8%99%9A%E5%87%BD%E6%95%B0)
 
+### 强制类型转换
+[link](https://github.com/guaguaupup/cpp_interview/blob/main/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93%E2%80%94C++.md#c-%E5%9B%9B%E7%A7%8D%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2)
+
+
+### 内存泄漏
+[link](https://github.com/guaguaupup/cpp_interview/blob/main/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93%E2%80%94C++.md#%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%87%BA%E7%8E%B0%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95)
+
+
+### C++11
+[link](https://github.com/guaguaupup/cpp_interview/blob/main/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93%E2%80%94C++.md#watermelonc11%E6%96%B0%E7%89%B9%E6%80%A7)
+
+### 智能指针
+[link](https://aijishu.com/a/1060000000286819)
+
+> - unique_ptr 一般是不需要多个指向同一个对象的指针时使用，对象或方法内部使用时优先使用unique_ptr 
+> - shared_ptr一般在需要多个执行同一个对象的指针使用。在我看来可以简单的理解：这个对象需要被多个 Class 同时使用的时候。
 
 
 ## **static 和const分别怎么用，类里面static和const可以同时修饰成员函数吗**
