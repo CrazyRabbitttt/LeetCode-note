@@ -44,6 +44,128 @@ https://blog.csdn.net/qq_40276626/article/details/119979930
 > - shared_ptr一般在需要多个执行同一个对象的指针使用。在我看来可以简单的理解：这个对象需要被多个 Class 同时使用的时候。
 
 
+### C++单例模式
+> 一般遇到的写进程池类、日志类、内存池（缓存数据的结构，一处写多出读或者多处写多处读）用到单例模式
+> **实现方法：**全局只有一个实例也就意味着不能用new调用构造函数来创建对象，因此构造函数必须是虚有的。但是由于不能new出对象，所以类的内部必须提供一个函数来获取对象，而且由于不能外部构造对象，因此这个函数不能是通过对象调出来，换句话说这个函数应该是属于对象的，很自然我们就想到了用static。由于静态成员函数属于整个类，在类实例化对象之前就已经分配了空间，而类的非静态成员函数必须在类实例化后才能有内存空间。
+
+
+** 要点总结**
+> - 全局只有一个实例、使用static 进行设计、构造函数为私有（不能使用new创建）
+> - 通过公用的接口获得
+> - 线程安全
+> - 禁止拷贝 or 赋值
+
+
+### 懒汉单例设计模式
+- 普通的懒汉式线程不安全
+> 不加锁线程并发产生多个实例
+
+```cpp
+#include <iostream>
+#include <mutex>
+#include <pthread.h>
+
+using namespace std;
+
+
+class SingleInstance {
+ public:
+    
+    static SingleInstance* GetInstance();
+
+    // 释放单例模式的时候调用
+    static void deleteSingle();
+
+    // 打印单例地址
+    void Print();
+
+ private:
+    SingleInstance();
+    ~SingleInstance();
+
+    SingleInstance(const SingleInstance& single);
+    const SingleInstance& operator=(const SingleInstance& single);
+
+    static SingleInstance *m_SingleInstance_;
+};
+
+
+// 进行初始化
+SingleInstance* SingleInstance::m_SingleInstance_ = nullptr;
+
+SingleInstance* SingleInstance::GetInstance() {
+    if (m_SingleInstance_ == nullptr) {
+        m_SingleInstance_ = new SingleInstance();
+    }
+    return m_SingleInstance_;
+}
+
+
+void SingleInstance::deleteSingle() {
+    if (m_SingleInstance_) {
+        delete m_SingleInstance_;
+        m_SingleInstance_ = nullptr;
+    }
+}
+
+
+```
+
+### 双锁检测的单例模式
+```cpp
+
+class Singleton {
+ private:
+    Singleton();
+    ~Singleton();
+ public:
+    static Singleton& GetInstance() {
+        if (m_instance_ == nullptr) {
+            std::unique_lock lock(m);
+            
+        }
+    }
+
+ private:
+    static Singleton* m_instance_;
+    static std::mutex m;
+};
+
+
+```
+
+
+### 使用`local static`变量进行优雅的设置单例模式
+C++11规定了local static在多线程条件下的初始化行为，要求编译器保证了内部静态变量的线程安全性。在C++11标准下，《Effective C++》提出了一种更优雅的单例模式实现，使用函数内的local static对象。这样，只有当第一次访问getInstance()方法时才创建实例。
+```cpp
+class Singleton;
+
+class Singleton {
+ private:
+    Singleton();
+    Singleton(const Singleton& );
+ 
+ public:
+    static Singleton& GetInstance() {
+        // 使用局部静态变量保证安全
+        static Singleton instance;
+        return instance;
+    }
+
+
+ private:
+    // class member
+
+};
+```
+
+
+
+
+### shared_ptr & weak_ptr多线程共享对象问题
+[这里是链接🔗，自己要敲一敲看看](https://github.com/davidditao/DDmuduo/blob/master/C%2B%2B/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88.md#62-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E5%85%B1%E4%BA%AB%E5%AF%B9%E8%B1%A1%E9%97%AE%E9%A2%98)
+
+
 ## **static 和const分别怎么用，类里面static和const可以同时修饰成员函数吗**
 
 - **static**
@@ -121,6 +243,53 @@ https://blog.csdn.net/qq_40276626/article/details/119979930
 
 ## 手撕的数据结构&模型等
 
+
+### 哈希表
+[这里是链接🔗](https://zhuanlan.zhihu.com/p/144296454)
+
+
+### 冒泡排序
+
+```cpp
+
+void Bubble_Sort(int a[], int length) {
+    for (int i = 0; i < length; i++) {
+        for (int j = 0; j < len - i - 1; j++) {
+            if (a[j] > a[j+1]) {
+                swap(a[j], a[j+1]);
+            }
+        } 
+    }
+}
+
+
+```
+
+
+
+#### 快速排序
+```cpp
+
+void quickSort(int left, int right, vector<int>& arr) {
+    if (left >= right) return ;
+    int i, j, base = arr[left];
+    i = left, j = right;
+
+    while (i < j) {
+        // 找小于基数的位置
+        while (arr[j] >= base && i < j)  j--;
+        while (arr[i] <= base && i < j)  i++;
+        if (i < j) swap(arr[i], arr[j]);
+    }
+
+    swap(arr[i], arr[left]);            // 交换base 与 交汇点
+    quickSort(left, i-1, arr);
+    quickSort(i+1, right, arr);
+}
+
+```
+
+
 #### 堆排序
 > - 迭代调整最大堆
 > - 交换堆顶到末尾实现排序，交换后调整堆的结构
@@ -158,7 +327,7 @@ void heapSort(int a[], int size) {
         adjust(a, i, 0);
     }
 }
-
+    
 
 int main() {
     int a[10] = { 21, 343, 122, 84, 5, 117, 4, 35, 90, 666 };
@@ -231,80 +400,41 @@ int main() {
 ### 简单引用计数共享指针
 
 ```cpp
-#include <iostream>
-using namespace std;
 
-// 引用计数实现共享指针
+template<class T>
 
-// template <class T>
-// class Ref_count {
-//  private:
-//     T* ptr_;             // 原始的指针
-//     int* count;         // 引用计数器指针
-//  public:
-
-//     Ref_count(T* t)
-//         :ptr_(t), count(new int(1)) {}
-//     ~Ref_count() {
-//         decrease();
-//     }
-
-//     // 拷贝构造
-//     Ref_count(const Ref_count<T>& tmp) {
-//         count = tmp->count();
-//         ptr_  = tmp->ptr_;
-//         increase();     // 引用计数➕1
-//     }
-
-//     // 智能指针需要表现的像一个指针，重载重要的符号
-//     T* operator->() const {
-//         return ptr;
-//     }
-
-//     T& operator *() const {
-//         // *(ptr) = value;
-//         return *ptr_;
-//     }
-
-
-//     void increase() {
-//         if (count) {
-//             *(count)++;
-//         }
-//     }
-
-//     void decrease() {
-//         if (count) {
-//             *(count)--;
-//             if (*count == 0) {
-//                 // 如果说引用计数为0的话就删除数据对象的指针和count的指针
-//                 delete ptr_;
-//                 ptr_ = nullptr;
-//                 delete count;
-//                 count = nullptr;
-//             }
-//         }
-//     }
-
-//     T* get() const {
-//         return ptr_;
-//     }
-
-//     int get_count() const {
-//         if (!count) return 0;
-//         return *count;
-//     }
-
-
-// };
-
-template<class T> 
 class Ref_count {
+ 
  public:
-    Ref_count(T* ptr)
-        :ptr_(ptr), count_(new int(1)) {}
+    Ref_count(T *t)
+        : ptr_(t), count_(new int(1)) {}
+
     ~Ref_count() {
         decrease();
+    }
+
+    Ref_count(const Ref_count<T>& tmp) {
+        // 进行拷贝构造, 指向相同的内容
+        count_ = tmp->count_;
+        ptr_   = tmp->ptr_;
+        increase();
+    }
+
+    Ref_count<T>& operator=(const Ref_count& tmp) {
+        // 左边的放弃，右边的+1
+        if (tmp != this) {
+            decrease();             // 左边的被decrease();
+            ptr_    = tmp->ptr_;
+            count_  = tmp->count_;
+            increase();             // 右边的对应的引用计数加一
+        }
+        return *this;
+    }
+
+    void increase() {
+        if (count_) {
+            *(count_)++;
+        }
     }
 
     T* operator->() const {
@@ -315,26 +445,18 @@ class Ref_count {
         return *ptr_;
     }
 
-    void increase() {
-        if (count_) {
-            *(count_)++;
-        }
-    }
-
-
     void decrease() {
         if (count_) {
-            *(count)--
+            *(count_)--;
             if (*count_ == 0) {
-                delete ptr_;
-                ptr_ = nullptr;
-                delete count_;
-                count_ = nullptr;
+                // 引用计数为0，释放
+                delete count_; count_ = nullptr;
+                delete ptr_;   ptr_   = nullptr;
             }
         }
     }
 
-    T* get() const {
+    T* get() const {        // get raw pointer 
         return ptr_;
     }
 
@@ -342,11 +464,10 @@ class Ref_count {
         if (!count_) return 0;
         return *count_;
     }
-
-
  private:
-    T* ptr_;
-    int* count_;
+    T* ptr_;                // raw pointer
+    int* count_;            // ref count
+
 };
 
 ```
