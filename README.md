@@ -1,6 +1,14 @@
 
-## HTTPS 
+### HTTPS 
 [这里是链接](https://www.nowcoder.com/discuss/1009213)
+
+
+### Muduo中优秀思想分析地址
+[这里是链接](https://zhuanlan.zhihu.com/p/495016351)
+
+最后部分有对于RunInloop的分析
+
+
 
 ## 操作系统
 
@@ -10,6 +18,10 @@ https://blog.csdn.net/qq_40276626/article/details/119979930
 ### 5种IO模型，很好的文章
 > [链接在这里](https://zhuanlan.zhihu.com/p/115912936)
 
+> 阻塞为什么会很消耗资源呢？
+
+阻塞虽然是不消耗CPU，但是既然阻塞了就会让出来CPU给别的进程/线程，这个切换的消耗是比较高的
+而非阻塞就不会进行切换, 但是轮询
 
 ### 指针和引用的区别
 [link](https://github.com/guaguaupup/cpp_interview/blob/main/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93%E2%80%94C++.md#%E6%8C%87%E9%92%88%E5%92%8C%E5%BC%95%E7%94%A8%E7%9A%84%E5%8C%BA%E5%88%AB)
@@ -47,6 +59,26 @@ https://blog.csdn.net/qq_40276626/article/details/119979930
 
 > - unique_ptr 一般是不需要多个指向同一个对象的指针时使用，对象或方法内部使用时优先使用unique_ptr 
 > - shared_ptr一般在需要多个执行同一个对象的指针使用。在我看来可以简单的理解：这个对象需要被多个 Class 同时使用的时候。
+
+### shared_ptr循环引用问题
+```cpp
+
+struct A {
+  shared_ptr<B> b;
+};
+
+struct B {
+  shared_ptr<A> a;
+};
+
+shared_ptr<A> pa = make_shared<A>();
+shared_ptr<B> pb = make_shared<B>();
+
+pa->b = pb;
+pb->a = pa;
+
+```
+> 用weak_ptr 解除循环引用问题
 
 
 ### C++单例模式
@@ -642,6 +674,46 @@ class Ref_count {
 
 };
 
+```
+
+### 反转链表
+```cpp
+
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur  = head;
+
+
+        // a -> b -> c
+        while (cur) {
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+        return prev;
+    }
+};
+
+```
+
+### 递归反转链表
+
+```cpp
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if (!head || !head->next) {
+            return head;
+        }
+        ListNode* newHead = reverseList(head->next);
+        head->next->next = head;
+        head->next = nullptr;
+        return newHead;
+    }
+};
 ```
 
 
