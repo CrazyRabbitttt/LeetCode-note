@@ -8,9 +8,16 @@
 
 最后部分有对于RunInloop的分析
 
+### 迭代器失效
+[这里是链接](https://blog.csdn.net/qq_37964547/article/details/81160505)
 
 
 ## 操作系统
+
+
+#### select, poll, epoll 
+[link](https://juejin.cn/post/6844904174862204935i)
+
 
 #### 内核态用户态的切换
 https://blog.csdn.net/qq_40276626/article/details/119979930
@@ -455,7 +462,6 @@ public:
 ### 冒泡排序
 
 ```cpp
-
 void Bubble_Sort(int a[], int length) {
     for (int i = 0; i < length; i++) {
         for (int j = 0; j < len - i - 1; j++) {
@@ -465,7 +471,6 @@ void Bubble_Sort(int a[], int length) {
         } 
     }
 }
-
 
 ```
 
