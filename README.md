@@ -16,7 +16,7 @@
 
 
 #### select, poll, epoll 
-[link](https://juejin.cn/post/6844904174862204935i)
+[link](https://juejin.cn/post/6844904174862204935)
 
 
 #### 内核态用户态的切换
